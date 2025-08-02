@@ -1,0 +1,178 @@
+/* Estilos para la verificación de documento */
+.document-check {
+  background-color: #f7f9fc;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 400px;
+  margin: 100px auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.document-check-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Estilos para los resultados */
+/* Estilos resultados del formulario burble */
+.results {
+  background-color: transparent;
+  background-image: linear-gradient(180deg, #6EB6FC 0%, #5F29B6 100%);
+}
+
+.nav__container {
+  width: 100%;
+  height: 92px;
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .nav__container {
+    position: relative;
+    height: 107px;
+  }
+}
+
+.options__container {
+  display: flex;
+  width: 95%;
+  margin: 0 auto;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .options__container {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: flex-start;
+    gap: 20px;
+    position: absolute;
+    top: 20%;
+    left: 4%;
+  }
+}
+
+.notice__option {
+  display: none;
+  align-items: center;
+
+}
+
+@media (min-width: 768px) {
+  .notice__option {
+    display: flex;
+  }
+
+}
+
+.nav__title {
+  color: #FAFAFA;
+  font-size: 22px;
+}
+
+.results-text {
+  background-color: #6DA336;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
+  padding: 10px;
+}
+
+.slider-container {
+  width: 95%;
+  margin: 0 auto;
+  padding-bottom: 50px;
+}
+
+.results-category {
+  padding-top: 0;
+  color: white;
+  margin: 10px;
+  border: 1px solid rgba(250, 250, 250, 0.5);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.27);
+  padding-bottom: 10px;
+}
+
+/* Button "autodiagnostico" styles */
+
+.button-container {
+  text-align: center;
+  padding-bottom: 10px;
+}
+
+.results-button {
+  padding: 8px 21px;
+  width: 90%;
+  border: transparent;
+  border-radius: 10px;
+  color: #12176B;
+  font-weight: 700;
+  font-size: 12px;
+  background-color: #FAFAFA;
+  transition: all 300ms cubic-bezier(.23, 1, 0.32, 1);
+}
+
+.results-button:hover {
+  transform: translateY(-1px)
+}
+
+.results-text:hover {
+  background-color: #12176B;
+}
+
+
+@media (min-width: 768px) {
+  .results-category {
+    margin: 20px;
+  }
+}
+
+.results-category:hover {
+  background-color: transparent;
+  background-image: linear-gradient(180deg, #1E5E66 0%, #21508B 100%);
+}
+
+.restart-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.restart {
+  flex: none;
+  width: auto;
+  margin-bottom: 20px;
+}
+
+.chart-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* Centra horizontalmente */
+  align-items: center;
+  /* Centra verticalmente cuando los elementos están en la misma línea */
+  gap: 10px;
+  margin-top: 50px;
+}
+
+.chart {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 350px;
+  width: 300px;
+  /* Ajusta el ancho máximo para considerar el gap */
+  padding: 20px;
+  border: 1px solid rgba(250, 250, 250, 0.5);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.27);
+}

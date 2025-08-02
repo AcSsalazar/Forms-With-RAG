@@ -1,0 +1,61 @@
+/* Estilos para la verificación de documento */
+.document-check {
+  background-color: #f7f9fc;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 400px;
+  margin: 100px auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.document-check-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.forgot-password-link {
+  color: red;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* Button "autodiagnostico" styles */
+
+.button-container {
+  text-align: center;
+  padding-bottom: 10px;
+}
+
+.success-message {
+    color: green;
+    font-size: 12px;
+    text-align: center;
+}
+
+.success-container {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.error-container {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.form-submit-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.form-input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
