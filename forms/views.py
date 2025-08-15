@@ -64,6 +64,52 @@ class CheckDocumentView(APIView):
         except Exception as e:
             return Response({'exists': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+
+#  Vista para filtrar por UserId todos los ultimos fomrs completados:
+
+
+
+class CompletedFormsByDocumentView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, document_number):
+
+
+        try: 
+            forms = CompletedForm.objects.filter(
+                content__info__identificationNumber=document_number
+            ).order_by('-created_at')
+
+            if not forms.exists():
+                return Response(
+
+                    {"count": 0,
+                     "results": []}, status=status.HTTP_200_OK)
+            
+
+            serializer = CompletedFormSerializer(forms, many=True)    
+            return Response({
+            "count": forms.count(),
+            "results": serializer.data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            
+    
+            return Response(
+                {'error': f'Error retrieving forms: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+                
+                
+
+
+
+
+
+
+
+
 @api_view(['GET'])
 def get_category_averages(request, document_number):
     completed_form = CompletedForm.objects.filter(

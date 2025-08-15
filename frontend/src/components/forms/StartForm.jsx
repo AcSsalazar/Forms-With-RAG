@@ -1,21 +1,22 @@
-
 import '../../stylesheets/startform.css';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchForms } from '../../utils/apiServices';
-
+import { useUser, SignedIn, SignedOut } from '@clerk/clerk-react';
 
 function StartForm() {
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     userName: "",
     email: "",
-    identificationType: "",
-    identificationNumber: "",
     companyName: "",
-    marketReach: "",
-    analysisType: "",
+    industryArea: "",
+    identificationType: "", 
+    identificationNumber: "",
+    occupation: "",
+    selectForm: "",
     dataConsent: false,
   });
 
@@ -24,61 +25,64 @@ function StartForm() {
   const [errors, setErrors] = useState({});
   const [loadingForms, setLoadingForms] = useState(true);
 
-  // Cargar nombres de formularios
-useEffect(() => {
-  const loadForms = async () => {
-    try {
-      const form = await fetchForms();
-      console.log("API response:", form); // Debug
-      if (Array.isArray(form.results)) {
-        setFormNames(form.results);
-      } else {
-        setFormNames([]); // or handle error
-        console.error("API did not return an array:", form);
+  // Cargar formularios
+  useEffect(() => {
+    const loadForms = async () => {
+      try {
+        const form = await fetchForms();
+        setFormNames(Array.isArray(form.results) ? form.results : []);
+      } catch (error) {
+        console.error("Error al cargar formularios:", error);
+      } finally {
+        setLoadingForms(false);
       }
-    } catch (error) {
-      console.error("Error al cargar formularios:", error);
-    } finally {
-      setLoadingForms(false);
+    };
+    loadForms();
+  }, []);
+
+  //GUardar title del formulario
+  useRef(formNames).current = formNames;
+  
+
+  // Autocompletar nombre y email desde Clerk o backend
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        userName: user?.fullName || user?.info?.userName || "",
+        email: user?.primaryEmailAddress?.emailAddress || user?.info?.email || ""
+      }));
     }
-  };
-  loadForms();
-}, []);
+  }, [user]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-    validateField(name, type === "checkbox" ? checked : value);
+  // Manejo de cambios
+  const handleChange = ({ target: { name, value, type, checked } }) => {
+    const newValue = type === "checkbox" ? checked : value;
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    validateField(name, newValue);
   };
 
+  // Validación por campo
   const validateField = (name, value) => {
-    let tempErrors = { ...errors };
-    switch (name) {
-      case "email":
-        tempErrors[name] = /\S+@\S+\.\S+/.test(value) ? "" : "Correo no válido";
-        break;
-      default:
-        tempErrors[name] = value ? "" : "Este campo es obligatorio";
-        break;
+    let msg = "";
+    if (name === "email" && !/\S+@\S+\.\S+/.test(value)) {
+      msg = "Correo no válido";
+    } else if (!value) {
+      msg = "Este campo es obligatorio";
     }
-    setErrors(tempErrors);
+    setErrors((prev) => ({ ...prev, [name]: msg }));
   };
 
+  // Validación por paso
   const validateStep = () => {
     let tempErrors = {};
     if (currentStep === 1) {
-      ["userName", "email", "identificationType", "identificationNumber"].forEach((field) => {
+      ["identificationType", "identificationNumber"].forEach((field) => { 
         if (!formData[field]) tempErrors[field] = "Este campo es obligatorio";
       });
-      if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-        tempErrors.email = "Correo no válido";
-      }
     }
     if (currentStep === 2) {
-      ["companyName", "marketReach", "analysisType"].forEach((field) => {
+      ["companyName", "industryArea", "occupation", "selectForm"].forEach((field) => {
         if (!formData[field]) tempErrors[field] = "Este campo es obligatorio";
       });
     }
@@ -86,14 +90,11 @@ useEffect(() => {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const nextStep = () => {
-    if (validateStep()) setCurrentStep((prev) => prev + 1);
-  };
+  // Navegación de pasos
+  const nextStep = () => validateStep() && setCurrentStep((p) => p + 1);
+  const prevStep = () => setCurrentStep((p) => p - 1);
 
-  const prevStep = () => {
-    setCurrentStep((prev) => prev - 1);
-  };
-
+  // Envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.dataConsent) {
@@ -106,147 +107,174 @@ useEffect(() => {
   };
 
   if (loadingForms) return <p>Cargando formularios...</p>;
+
   return (
     <section className="startform-section">
-      <div className="startform-container">
-        <div className="startform-card">
-          <div className="startform-card-body">
-            <h3 className="form-header">Formulario de inicio</h3>
+      <SignedIn>
+        <div className="startform-container">
+          <div className="startform-card">
+            <div className="startform-card-body">
+              <h3 className="form-header">Formulario de Registro</h3>
 
-            <div className="stepper">
-              <div className={`step-item ${currentStep === 1 ? 'active' : ''}`}>
-                <span className="step-number">1</span>
-                <span className="step-label">Datos personales</span>
-              </div>
-              <div className={`step-item ${currentStep === 2 ? 'active' : ''}`}>
-                <span className="step-number">2</span>
-                <span className="step-label">Empresa</span>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} noValidate>
-              {currentStep === 1 && (
-                <div className="step">
-                  <input
-                    type="text"
-                    name="userName"
-                    className="form-input"
-                    placeholder="Nombre completo"
-                    value={formData.userName}
-                    onChange={handleChange}
-                  />
-                  {errors.userName && <span className="error-message">{errors.userName}</span>}
-
-                  <input
-                    type="email"
-                    name="email"
-                    className="form-input"
-                    placeholder="Correo electrónico"
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
-                  {errors.email && <span className="error-message">{errors.email}</span>}
-
-                  <select
-                    name="identificationType"
-                    className="form-select"
-                    value={formData.identificationType}
-                    onChange={handleChange}
-                  >
-                    <option value="">Tipo de documento</option>
-                    <option value="cc">Cédula</option>
-                    <option value="ce">Cédula extranjería</option>
-                    <option value="pasaporte">Pasaporte</option>
-                  </select>
-                  {errors.identificationType && <span className="error-message">{errors.identificationType}</span>}
-
-                  <input
-                    type="text"
-                    name="identificationNumber"
-                    className="form-input"
-                    placeholder="Número de identificación"
-                    value={formData.identificationNumber}
-                    onChange={handleChange}
-                  />
-                  {errors.identificationNumber && <span className="error-message">{errors.identificationNumber}</span>}
+              {/* Stepper */}
+              <div className="stepper">
+                <div className={`step-item ${currentStep === 1 ? 'active' : ''}`}>
+                  <span className="step-number">1</span>
+                  <span className="step-label">Datos Personales</span>
                 </div>
-              )}
+                <div className={`step-item ${currentStep === 2 ? 'active' : ''}`}>
+                  <span className="step-number">2</span>
+                  <span className="step-label">Datos Profesionales</span>
+                </div>
+              </div>
 
-              {currentStep === 2 && (
-                <div className="step">
-                  <input
-                    type="text"
-                    name="companyName"
-                    className="form-input"
-                    placeholder="Nombre de empresa"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                  />
-                  {errors.companyName && <span className="error-message">{errors.companyName}</span>}
+              <form onSubmit={handleSubmit} noValidate>
+                {/* Paso 1 */}
+                {currentStep === 1 && (
+                  <div className="step_1">
+                    <p className='user__nst'>
+                      <strong className='user__st'>Nombre:</strong> 
+                      {formData.userName || 'Usuario'}
+                    </p>
+                    <p className='user__nst'>
+                      <strong className='user__st'>Email:</strong> 
+                      {formData.email || 'Email no disponible'}
+                    </p>
 
-                  <select
-                    name="marketReach"
-                    className="form-select"
-                    value={formData.marketReach}
-                    onChange={handleChange}
-                  >
-                    <option value="">Alcance de mercado</option>
-                    <option value="micro">Microempresa</option>
-                    <option value="pyme">Pyme</option>
-                    <option value="grande">Grande</option>
-                  </select>
-                  {errors.marketReach && <span className="error-message">{errors.marketReach}</span>}
+                    <select
+                      name="identificationType"
+                      className="form-select"
+                      value={formData.identificationType}
+                      onChange={handleChange}
+                    >
+                      <option value="">Selecciona tipo de Documento</option>
+                      <option value="cedula">Cédula</option>
+                      <option value="extranjera">Cédula de Extranjería</option>
+                      <option value="pasaporte">Pasaporte</option>
+                      <option value="otro">Otro</option>
+                    </select>
+                    {errors.identificationType && <span className="error-message">{errors.identificationType}</span>}
 
-                  <select
-                    name="analysisType"
-                    className="form-select"
-                    value={formData.analysisType}
-                    onChange={handleChange}
-                  >
-                    <option value="">Tipo de test</option>
-                    {formNames.map((form) => (
-                      <option key={form.slug} value={form.slug}>
-                        {form.title}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.analysisType && <span className="error-message">{errors.analysisType}</span>}
-
-                  <label className="form-checkbox">
                     <input
-                      type="checkbox"
-                      name="dataConsent"
-                      checked={formData.dataConsent}
+                      type="text"
+                      className="form-input"
+                      name="identificationNumber"
+                      placeholder="Número de identificación"  
+                      value={formData.identificationNumber} 
+                      onChange={handleChange} 
+                    />
+                    {errors.identificationNumber && <span className="error-message">{errors.identificationNumber}</span>}
+                  </div>
+                )}
+
+                {/* Paso 2 */}
+                {currentStep === 2 && (
+                  <div className="step">
+                    <input
+                      type="text"
+                      name="companyName"
+                      className="form-input"
+                      placeholder="Nombre de la empresa"
+                      value={formData.companyName}
                       onChange={handleChange}
                     />
-                    Acepto tratamiento de datos
-                  </label>
-                </div>
-              )}
+                    {errors.companyName && <span className="error-message">{errors.companyName}</span>}
 
-              <div className="actions">
-                {currentStep > 1 && (
-                  <button type="button" className="btn btn-secondary" onClick={prevStep}>
-                    Atrás
-                  </button>
+                    <select
+                      name="industryArea"
+                      className="form-select"
+                      value={formData.industryArea}
+                      onChange={handleChange}
+                    >
+                      <option value="">Área o sector de la industria</option>
+                      <option value="tecnologia">Tecnología y Software</option>
+                      <option value="consultoria">Consultoría</option>
+                      <option value="finanzas">Finanzas y Banca</option>
+                      <option value="educacion">Educación</option>
+                      <option value="salud">Salud y Bienestar</option>
+                      <option value="manufactura">Manufactura</option>
+                      <option value="comercio">Comercio y Ventas</option>
+                      <option value="logistica">Logística y Transporte</option>
+                      <option value="turismo">Turismo y Hotelería</option>
+                      <option value="energia">Energía y Medio Ambiente</option>
+                      <option value="otros">Otros</option>
+                    </select>
+                    {errors.industryArea && <span className="error-message">{errors.industryArea}</span>}
+
+                    <select
+                      name="occupation"
+                      className="form-select"
+                      value={formData.occupation}
+                      onChange={handleChange}
+                    >
+                      <option value="">Ocupación</option>
+                      <option value="estudiante">Estudiante</option>
+                      <option value="independiente">Trabajador Independiente</option>
+                      <option value="empleado-privado">Empleado del sector privado</option>
+                      <option value="empleado-publico">Empleado del sector público</option>
+                      <option value="emprendedor">Emprendedor</option>
+                      <option value="directivo">Cargo directivo</option>
+                      <option value="docente">Docente / Investigador</option>
+                    </select>
+                    {errors.occupation && <span className="error-message">{errors.occupation}</span>}
+
+                    <select
+                      name="selectForm"
+                      className="form-select"
+                      value={formData.selectForm}
+                      onChange={handleChange}
+                    >
+                      <option value="">Selecciona tu test</option>
+                      {formNames.map((form) => (
+                        <option key={form.slug} value={form.slug}>
+                          {form.title}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.selectForm && <span className="error-message">{errors.selectForm}</span>}
+
+                    <label className="form-checkbox">
+                      <input
+                        type="checkbox"
+                        name="dataConsent"
+                        checked={formData.dataConsent}
+                        onChange={handleChange}
+                      />
+                      Acepto el tratamiento de datos personales
+                    </label>
+                  </div>
                 )}
-                {currentStep < 2 && (
-                  <button type="button" className="btn btn-primary" onClick={nextStep}>
-                    Siguiente
-                  </button>
-                )}
-                {currentStep === 2 && (
-                  <button type="submit" className="btn btn-primary">
-                    Comenzar diagnóstico
-                  </button>
-                )}
-              </div>
-            </form>
+
+                {/* Botones */}
+                <div className="actions">
+                  {currentStep > 1 && (
+                    <button type="button" className="btn btn-secondary" onClick={prevStep}>
+                      Atrás
+                    </button>
+                  )}
+                  {currentStep < 2 && (
+                    <button type="button" className="btn btn-primary" onClick={nextStep}>
+                      Siguiente
+                    </button>
+                  )}
+                  {currentStep === 2 && (
+                    <button type="submit" className="btn btn-primary">
+                      Comenzar diagnóstico
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
+      </SignedIn>
+
+      <SignedOut>
+        <p>Para realizar el test debes iniciar sesión.</p>
+      </SignedOut>
     </section>
   );
 }
 
 export default StartForm;
+

@@ -40,7 +40,7 @@ class FormSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Form
-        fields = ['id', 'title', 'questions', 'slug']
+        fields = ['id', 'image', 'title', 'description' , 'questions', 'slug']
 
 class CompletedFormSerializer(serializers.ModelSerializer):
     class Meta:

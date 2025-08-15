@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+/* import React, { createContext, useState, useEffect } from 'react';
 import { getUserDetails, getUserProfile } from '../utils/apiServices';
 
 export const AuthContext = createContext();
@@ -51,4 +51,4 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-};
+}; */

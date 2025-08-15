@@ -12,6 +12,7 @@ router.register(r'completed-forms', views.CompletedFormViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('completed-forms/by-document/<str:document_number>/', views.CompletedFormsByDocumentView.as_view(), name='forms-by-document'),
     path('completed-forms/check/<str:document_number>/', views.CheckDocumentView.as_view(), name='check-document'),
     path('completed-forms/<int:pk>/delete/', views.CompletedFormViewSet.as_view({'delete': 'delete_form'}), name='delete-form'),
     path('category-averages/<str:document_number>/', views.get_category_averages, name='category-averages'),

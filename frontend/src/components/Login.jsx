@@ -5,7 +5,6 @@ import { AuthContext } from '../contexts/AuthContext';
 import home from '../img/svg/home.svg';
 import arrow from '../img/svg/arrow.svg';
 import figure from '../img/svg/formulario_figure.svg';
-import thankYouImage from '../img/grow-you-business.png';
 import '../stylesheets/login.css';
 
 function AuthForm() {
@@ -70,7 +69,7 @@ function AuthForm() {
     return (
       <section className="thank_you">
         <div className='thank_you__image'>
-          <img src={thankYouImage} alt="Thank You"/>
+    
         </div>
         <div className="thank_you__text">
           <h1>Bienvido a la herramienta de transformación digital desarrollada por Wirk Consulting, {user?.full_name || 'Usuario'}!</h1>

@@ -1,0 +1,182 @@
+/* Optional: if you already have variables.css, keep this import. Fallbacks provided. */
+@import "../variables.css";
+
+.fc {
+  background: var(--bg-light);
+  min-height: 100dvh;
+}
+
+.fc-container {
+  width: min(1120px, 100%);
+  margin-inline: auto;
+  padding: 32px 20px 40px;
+}
+
+/* Header */
+.fc-header {
+  margin-bottom: 16px;
+}
+.fc-title {
+  margin: 0 0 6px 0;
+  font-size: clamp(24px, 3.2vw, 36px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.fc-subtitle {
+  margin: 0;
+  color: var(--muted, #242c4d);
+  font-size: 15px;
+}
+
+/* Grid */
+.fc-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 1024px) {
+  .fc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .fc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card */
+.fc-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03)) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+.fc-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--brand, #8b5cf6) 35%, var(--line, rgba(255, 255, 255, 0.08)));
+}
+
+/* Image */
+.fc-card__image {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+  background: rgb(65 107 133 / 34%);
+}
+
+.fc-card__image img {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  transform: scale(0.8);
+  transition: transform .3s ease;
+}
+.fc-card:hover .fc-card__image img {
+  transform: scale(0.7);
+}
+.fc-card__image-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent, rgba(87, 105, 167, 0.363));
+  pointer-events: none;
+}
+
+/* Body */
+.fc-card__body {
+  padding: 14px 14px 0 14px;
+}
+.fc-card__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+.fc-card__desc {
+  margin: 6px 0 0 0;
+  color: var(--muted, #b0b3c0);
+  font-size: 14px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Footer */
+.fc-card__footer {
+  padding: 14px;
+}
+.fc-button {
+  display: inline-flex;
+  width: 100%;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  background: rgba(25, 42, 92, 0.651);
+  color: var(--text, #e9e9ee);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.fc-button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Message */
+.fc-message {
+  margin-top: 12px;
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text, #e9e9ee);
+  padding: 16px;
+  border-radius: 14px;
+}
+
+/* Skeleton */
+.fc-skeleton {
+  pointer-events: none;
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.fc-skel-row {
+  height: 14px;
+  border-radius: 8px;
+  margin: 10px 14px 0 14px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.fc-skel-row.short {
+  width: 70%;
+}
+.fc-skel-btn {
+  height: 40px;
+  border-radius: 12px;
+  margin: 14px;
+  background: rgba(255, 255, 255, 0.06);
+}

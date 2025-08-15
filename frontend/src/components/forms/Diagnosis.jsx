@@ -29,7 +29,7 @@ function Diagnosis() {
 
   // Proteger ruta si no hay datos
   useEffect(() => {
-    if (!formData || !formData.analysisType) {
+    if (!formData || !formData.selectForm) {
       navigate('/start-form/');
     }
   }, [formData, navigate]);
@@ -39,7 +39,7 @@ function Diagnosis() {
     const loadForm = async () => {
       try {
         setIsLoading(true);
-        const form = await fetchFormBySlug(formData.analysisType);
+        const form = await fetchFormBySlug(formData.selectForm);
         setCurrentForm(form);
 
         const savedQuestionIndex = localStorage.getItem('currentQuestionIndex');
@@ -59,7 +59,7 @@ function Diagnosis() {
       }
     };
 
-    if (formData?.analysisType) {
+    if (formData?.selectForm) {
       loadForm();
     }
     console.log("Form data:", formData); // Debug

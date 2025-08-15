@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle, #20668a 0%, #1f1f24 63%);
+  background: var(--bg-maincolor);
   padding: 20px;
 }
 
@@ -27,6 +27,33 @@
   text-align: center;
   margin-bottom: 30px;
 }
+
+.user__nst{
+
+  font-size: 1rem;
+  font-weight: 400;
+  color: #38996c;
+}
+
+.user__st{
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+
+}
+
+
+.step_1 {
+
+    border-radius: 8px;
+    border: 1px #39429c2f solid;
+    padding: 6px;
+    display: flex;
+    row-gap: 17px;
+    flex-direction: column;
+    
+}
+
 
 /* Stepper */
 .stepper {
@@ -121,6 +148,7 @@
 }
 
 .btn-primary {
+  
   background: #5a67d8;
   color: white;
 }

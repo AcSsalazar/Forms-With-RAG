@@ -21,13 +21,16 @@ const ResultsDisplay = ({ userData, categoryData }) => {
           name: cat.category.name,
           average: cat.average, // Mantener 'average' para compatibilidad con PercentageChart
           value: cat.average,   // También incluir 'value' para otros componentes
-          plan: cat.plan,
+          plan: cat.plan, 
           ...cat.category
         }))
   
     : [];
    console.log('User Data:', userData)
    console.log('Category Data:', categoryData);
+
+
+
   return (
     <div className="results">
       <div className="notice__container">
@@ -41,7 +44,7 @@ const ResultsDisplay = ({ userData, categoryData }) => {
         </div>
         <div className="notice__title--container">
           <h4 className='notice__title'>
-            {`Bienvenido, ${userData?.info?.user_name || userData?.info?.full_name || userData?.info?.userName || 'Usuario'}! Estos son tus resultados de ${userData?.info?.analysisType}`}
+            {`${userData?.info?.user_name || userData?.info?.fullName || userData?.info?.userName || 'Usuario'}!, has finalizado el Test ${userData?.info?.selectForm} y estos son tus resultados:`}
           </h4>
         </div>
       </div>

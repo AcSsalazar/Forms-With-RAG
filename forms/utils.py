@@ -15,14 +15,16 @@ logger = logging.getLogger(__name__)
 
 info_questions = {
     "userName": "Nombre",
-    "analysisType": "Tipo de Análisis",
-    "identificationType": "Tipo de Documento",
+    "selectForm": "Tipo de Análisis",
+    "identificationType": "Tipo de Documento", # Nesesario para la busqueda y results
     "identificationNumber": "Número de Identificación",
     "email": "Correo Electrónico",
     "marketReach": "Tamaño del de la Empresa",
 }
 
-# Función para enviar correos de diagnóstico
+
+
+# Función para enviar correos de diagnóstico con mailersend
 def send_diagnostic_email(to_email, subject, context):
     html_message = render_to_string('diagnostic_email.html', context)
     plain_message = strip_tags(html_message)
@@ -93,10 +95,30 @@ def calculate_category_averages(answers):
                 'plan': plan_to_show
             })
 
+# El prompt general usara palabras clave como bajo, medio y alto para determinar el nivel conocimuiento del usuario y segun ello
+# Recomienda documentacion y videos, o cursos gratuitos curso personalisado ( link a marketplace).
+        def prompt_context_level(prompt, level_base):
+
+            level_base = ['Bajo', 'Medio', 'Alto']
+            prompt = "Recomienda videos y articulos y brinda informacion en forma de plan de mejora basado en la documentación que tienes del tema del cuestionario ."
+            if category_averages.average < 2:
+                return f"{prompt} {level_base[0]} "
+            elif category_averages.average < 3:
+                return f"{prompt} {level_base[1]} "
+            elif category_averages.average < 4:
+                return f"{prompt} {level_base[2]} "
+            
+            return prompt_context_level(prompt, level_base)
+
+
+
         return category_averages
     except Exception as e:
         logging.error(f"Error calculating category averages: {e}")
         return []
+    
+
+
     
 # Función para obtener las preguntas ordenadas
 def get_ordered_answer_questions(forms):
@@ -207,3 +229,6 @@ def export_as_excel(queryset):
 
     wb.save(response)
     return response
+
+
+ 

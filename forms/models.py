@@ -5,6 +5,28 @@ from ckeditor.fields import RichTextField
 from django.utils.text import slugify
 from .utils import calculate_category_averages
 
+
+
+
+def images_directory_path(instance, filename):
+    title = None
+    
+    if hasattr(instance, 'title') and instance.title:
+        title = instance.title
+
+    elif title:
+        ext = filename.split('.')[-1]
+        filename = "%s.%s" % (title.id, ext)
+        return 'user_{0}/{1}'.format(title.id, filename)
+    else:
+        # Handle the case when title is None
+        # You can return a default path or raise an exception, depending on your requirements.
+        # For example, return a path with 'unknown_user' as the user ID:
+        ext = filename.split('.')[-1]
+        filename = "%s.%s" % ('file', ext)
+        return 'title_{0}/{1}'.format('file', filename)
+    
+
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(unique=True, blank=True)
@@ -36,7 +58,9 @@ class DiagnosticPlan(models.Model):
         return f"{self.level_diagnostics.level}"
 
 class Form(models.Model):
+    image = models.ImageField(upload_to = 'media/formsimg', blank=True, null=True, help_text="Imagen del formulario")
     title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True, help_text="Descripción del formulario")
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     is_active = models.BooleanField(default=True)
     endpoint_url = models.CharField(max_length=255, blank=True, help_text="URL del endpoint (ej: /api/forms/analisis-oportunidades/)")
