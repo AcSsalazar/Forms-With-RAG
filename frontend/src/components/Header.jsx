@@ -5,6 +5,7 @@ import logoImg from '../img/svg/logo-header.svg';
 import { SignedIn, SignedOut, UserButton, SignInButton, SignOutButton, useUser } from '@clerk/clerk-react';
 
 function Header() {
+  // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate();
   const { user } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);

@@ -1,10 +1,11 @@
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 import logging
 from django.http import HttpResponse
 import openpyxl
+from requests import Response
+
 import csv
+from rest_framework import status
+from .mailersend import send_mailersend_email
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils.exceptions import InvalidFileException
 from django.apps import apps
@@ -26,11 +27,73 @@ info_questions = {
 
 # Función para enviar correos de diagnóstico con mailersend
 def send_diagnostic_email(to_email, subject, context):
-    html_message = render_to_string('diagnostic_email.html', context)
-    plain_message = strip_tags(html_message)
-    from_email = 'autodiagnostico@transformaciondigital.com.co'
-    
-    send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
+        from .models import CompletedForm
+        
+        catalog_url = "https://rcklean.wirkconsulting.com/catalogo"
+        portfolio_url = "https:/acsalazar.com"
+
+        
+            # === Email to client ===
+        results_url = f"https://rcklean.wirkconsulting.com/results/" # Pendiente de Heroku Student plan 
+        subject_client = "Epa! has realizado un test en nustra herramienta de autodiagnóstico"
+        text_client = f"""
+        Hello {CompletedForm.user}
+
+
+        Gracias por completar el test de autodiagnóstico. Aquí tienes un resumen de tus resultados:
+        
+
+        Completaste el Test : {CompletedForm.form_title}
+
+
+        Puedes ver los detalles de tu diagnóstico en el siguiente enlace: {results_url}
+        """
+
+        html_client = f"""
+        <html><body style="font-family: Arial;">
+          <h2>Vuelve Pornto, {CompletedForm.user}!</h2>
+          <p>Actualziamos nuestro Catalogo de Evaluaciones Constattemente, vuelve para encotrar mas contenido:</p>
+          <p><strong>Comletaste el test:</strong> {CompletedForm.form_title}</p>
+          <p><strong>Nuestro catalogo: </strong> ${catalog_url}</p>
+          <p><strong>Eres siemrpre bienvenid@:</strong></p>
+          <a href="{results_url}" style="display:inline-block;padding:10px 20px;background-color:#28a745;color:#fff;text-decoration:none;border-radius:4px;">
+            Puedes consultar los resultados de este y otras evaluaicones de nuestra plataforma aquí:
+          </a>
+          <p style="margin-top:20px;font-size:12px;color:#888;">by acsalazar {portfolio_url} · acsalazar-19@hotmail.com · Medellín, Colombia</p>
+        </body></html>
+        """
+
+        send_mailersend_email(CompletedForm.email, subject_client, text_client, html_client)
+
+        # === Email to business ===
+        subject_admin = "🚨 Un usuario ha completado un test"
+        text_admin = f"""
+        New client request:
+
+        Name: {CompletedForm.user}
+        Email: {CompletedForm.email}
+        Form Title: {CompletedForm.form_title}
+
+
+
+        """
+
+        html_admin = f"""
+        <html><body style="font-family: Arial;">
+          <h2>🚨 New Quote Request Received</h2>
+          <p><strong>Name:</strong> {CompletedForm.user}</p>
+          <p><strong>Email:</strong> {CompletedForm.email}</p>
+          <p><strong>Form Title:</strong> {CompletedForm.form_title}</p>
+          <a href="{results_url}" style="display:inline-block;padding:10px 20px;background-color:#007bff;color:#fff;text-decoration:none;border-radius:4px;">View Estimate</a>
+        </body></html>
+        """
+
+        send_mailersend_email("acsalazar-19@hotmail.com", subject_admin, text_admin, html_admin)
+
+        return Response({ "Texto de confirmación enviado": "El correo de confirmación ha sido enviado correctamente."
+        }, status=status.HTTP_200_OK)
+
+
 
 # Función para encontrar el plan de trabajo correspondiente a una categoría específica
 def find_plan(category_id, average):
