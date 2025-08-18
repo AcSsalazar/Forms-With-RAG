@@ -53,7 +53,8 @@ class DiagnosticLevel(models.Model):
 class DiagnosticPlan(models.Model):
     level_diagnostics = models.ForeignKey(DiagnosticLevel, related_name='plans', on_delete=models.CASCADE, null=True)
     text = RichTextField(blank=True, null=True)
-
+    ai_generated_content = models.TextField(blank=True, null=True)
+    
     def __str__(self):
         return f"{self.level_diagnostics.level}"
 

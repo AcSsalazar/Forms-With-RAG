@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import '../stylesheets/header.css';
 import logoImg from '../img/svg/logo-header.svg';
 import { SignedIn, SignedOut, UserButton, SignInButton, SignOutButton, useUser } from '@clerk/clerk-react';
 
 function Header() {
-  const navigate = useNavigate();
+
   const { user } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -24,7 +24,7 @@ function Header() {
         {/* Marca */}
         <Link to="/" className="header__brand" onClick={closeMobileMenu}>
           <img className="header__logo" src={logoImg} alt="logo" />
-          <h3 className="header__text">Rag Forms</h3>
+          <h3 className="header__text">Rag Forms</h3><span><p>Beta</p></span>
         </Link>
 
         {/* Botón menú móvil */}

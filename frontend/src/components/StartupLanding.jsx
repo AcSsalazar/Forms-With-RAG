@@ -7,7 +7,7 @@ import Typewriter from './forms/TypeWriter'
 
 const Hero = () => {
   
-const text =  `$ Hola visitante soy Julia Bot (❛‿❛):
+const text =  ` $Hola visitante soy Julia Bot (❛‿❛):
 
 Este proyecto evalúa tus respuestas y te otorga una calificación personalizada,
 acompañada de retroalimentación generada a partir de documentos del sistema RAG.
