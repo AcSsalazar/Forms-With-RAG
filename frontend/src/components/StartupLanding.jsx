@@ -25,7 +25,7 @@ Puedes elegir entre los siguientes modelos de IA para el análisis:
       <div className="hero-container">
         <div className="hero-content">
           <div className="hero-badge">
-            <span className="dot" aria-hidden="true" /> By acsalazar
+            <span className="dot" aria-hidden="true" /><Link to='http://acsalazar.com' style={{color: "white"}} > By acsalazar </Link>
           </div>
           <h1 id="hero-title" className="hero-title">
             Obtén un
@@ -67,9 +67,9 @@ Puedes elegir entre los siguientes modelos de IA para el análisis:
 
 const Features = () => {
   const features = [
-    { title: 'Login con Goolge o GitHub', description: 'Inicia sesion con tu cuenta de manera segura.', icon: '⚡️' },
-    { title: 'GTP-oss', description: 'Nuestro sistema esta potenciado por el modelo oss de Open IA.', icon: '☁️' },
-    { title: 'Open Source', description: 'Te interesa el proyecto ? Puedes hacer un fork ydejar una estrlla mi repositoride GitHub.', icon: '✨' },
+    { title: 'Login con Goolge o GitHub', description: 'Inicia sesion con tu cuenta de manera segura.', icon: '📬' },
+    { title: 'GTP-oss', description: 'Nuestro sistema esta potenciado por el modelo oss de Open IA.', icon: '👾' },
+    { title: 'Open Source', description: 'Te ha gustado el proyecto ? Recuerda que esta disponible de manera gratuita en mi repositorio de Github.', icon: '🛸' },
   ]
 
   return (
@@ -95,14 +95,14 @@ const Features = () => {
 
 const Testimonials = () => {
   const testimonials = [
-    { name: 'Jane Doe', role: 'CEO, TechCorp', quote: '¡Esta plataforma transformó nuestro camino de startup!' },
-    { name: 'John Smith', role: 'Founder, Innovate', quote: 'La mejor herramienta para desarrollar SaaS rápido.' },
+    { name: 'Brendan Eich', role: 'Creador de Java Script', quote: 'La web debería ser una plataforma para la innovación, no un conjunto de jardines amurallados.' },
+    { name: 'Linus Torvalds', role: 'Creador de Linux', quote: 'El verdadero poder del open source es la colaboración, no la gratuidad.' },
   ]
 
   return (
     <section className="testimonials" aria-labelledby="testimonials-title">
       <div className="container">
-        <h2 id="testimonials-title" className="section-title">Lo que dicen nuestros usuarios</h2>
+        <h2 id="testimonials-title" className="section-title">Open Source:</h2>
         <div className="testimonials-grid">
           {testimonials.map((t, i) => (
             <figure key={i} className="testimonial-card">
@@ -118,8 +118,8 @@ const Testimonials = () => {
 
 const Pricing = () => {
   const plans = [
-    { name: 'Documentacion', price: '$0', features: ['Docuementacion', 'Acceso al Repositorio', 'No incluye API Keys'] },
-    { name: 'Asistencia Personalizada', price: '$60', features: ['Guia paso a paso para crear esta app', 'Atencion Personal', 'Incluye API keys por 7 días'], popular: true },
+    { name: 'Documentacion', price: '$0', features: ['Documentación', 'Acceso al Repositorio', 'No incluye API Keys'] },
+    { name: 'Asistencia Personalizada', price: '$100', features: ['Guia paso a paso para crear esta app', 'Atencion Personal', 'Incluye API keys por 7 días'], popular: true },
   ]
 
   return (

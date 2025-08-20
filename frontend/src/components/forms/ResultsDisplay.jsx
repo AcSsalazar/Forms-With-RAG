@@ -12,7 +12,7 @@ import home from '../../img/svg/home.svg';
 import arrow from '../../img/svg/arrow.svg';
 import figure from '../../img/svg/formulario_figure.svg';
 
-const ResultsDisplay = ({ userData, categoryData }) => {
+const ResultsDisplay = ({ userData, categoryData, personalizedText }) => {
   // Mapeo para los gráficos y visualización
   const chartData = Array.isArray(categoryData)
     ? categoryData
@@ -28,6 +28,8 @@ const ResultsDisplay = ({ userData, categoryData }) => {
     : [];
    console.log('User Data:', userData)
    console.log('Category Data:', categoryData);
+   console.log("Texto Generado:", personalizedText)
+
 
 
 
@@ -65,11 +67,21 @@ const ResultsDisplay = ({ userData, categoryData }) => {
             <RadarChart categories={chartData} />
           </div>
         </div>
+
+        
+        {personalizedText && (
+  <div className="personalized-report">
+
+    <h3>Informe personalizado</h3>
+    <pre style={{ whiteSpace: "pre-wrap" }}>{personalizedText}</pre>
+  </div>
+)}
         <div className='restart-form'>
           <Link className='results-button restart' to='/autodiagnostico'>Rellenar otro formulario</Link>
         </div>
       </section>
     </div>
+    
   );
 };
 

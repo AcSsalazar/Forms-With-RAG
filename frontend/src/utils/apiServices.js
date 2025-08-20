@@ -100,6 +100,26 @@ export const submitForm = async (formTitle, userName, email, dataToSubmit) => {
   return response.json();
 };
 
+
+export const fetchPersonalizedResults = async (documentNumber) => {
+  const response = await fetch(`${API_BASE_URL}/forms/llmtext/${documentNumber}/`, 
+    {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'X-Client-Token': CLIENT_TOKEN,
+    },
+    });
+  if (!response.ok)
+
+    throw new Error("Error al obtener resultados personalizados");
+
+  return response.json();
+};
+
+
+
+
 export const fetchCategoryAverages = async (documentNumber) => {
   const response = await fetch(`${API_BASE_URL}/forms/category-averages/${documentNumber}/`, {
     method: 'GET',

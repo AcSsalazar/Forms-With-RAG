@@ -8,6 +8,7 @@ import {
   submitForm,
   checkDocument,
   fetchCategoryAverages,
+  fetchPersonalizedResults,
 } from '../../utils/apiServices';
 
 function Diagnosis() {
@@ -15,7 +16,7 @@ function Diagnosis() {
   const navigate = useNavigate();
 
   const formData = location.state?.formData;
-
+  const [aiGeneratedText, setAIGeneratedText] = useState("")
   const [currentForm, setCurrentForm] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -78,7 +79,12 @@ function Diagnosis() {
               createdAt: response.data.created_at,
             });
             const categoryResponse = await fetchCategoryAverages(formData.identificationNumber);
-            if (categoryResponse.exists) {
+            const aiTextResponse = await fetchPersonalizedResults(formData?.identificationNumber);
+            
+
+
+            if (categoryResponse.exists || aiTextResponse.exist === true) {
+              setAIGeneratedText(aiTextResponse.personalized_response);
               setCategoryData(categoryResponse.category_averages);
             }
           }
@@ -197,7 +203,11 @@ function Diagnosis() {
           isSubmitting={isSubmitting}
         />
       ) : (
-        <ResultsDisplay userData={userData} categoryData={categoryData} />
+        <ResultsDisplay 
+        userData={userData} 
+        categoryData={categoryData} 
+        personalizedText={aiGeneratedText}
+        />
       )}
     </>
   );

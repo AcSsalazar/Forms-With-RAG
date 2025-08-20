@@ -11,11 +11,13 @@ logger=logging.getLogger(__name__)
     
 class RAG:
     def __init__(self) -> None:
+        
         # Use settings instead of env variables directly
         self.pdf_folder_path = os.path.join(settings.BASE_DIR, settings.SOURCE_DATA.lstrip('/'))
         self.vector_store_path = os.path.join(settings.BASE_DIR, settings.VECTOR_STORE.lstrip('/'))
-        self.emb_model = self.get_embedding_model(self.emb_model_path)
         self.emb_model_path = settings.EMBED_MODEL
+        self.emb_model = self.get_embedding_model(self.emb_model_path)
+       
         
         # Create directories if they don't exist
         os.makedirs(self.pdf_folder_path, exist_ok=True)

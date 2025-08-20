@@ -146,23 +146,21 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_PORT = config('EMAIL_PORT', cast=int)
-EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+# --------------------------------------------------------------------------------------
+# MAILERSEND SETTINGS
+# --------------------------------------------------------------------------------------
+
+MAILERSEND_API_TOKEN = config("MAILERSEND_API_TOKEN")
+MAILERSEND_FROM_EMAIL = config("MAILERSEND_FROM_EMAIL", default="gerencia@wirkconsulting.com")
+MAILERSEND_FROM_NAME = config("MAILERSEND_FROM_NAME", default="WirkConsulting")
+MAILERSEND_REPLY_TO_EMAIL = config("MAILERSEND_REPLY_TO_EMAIL", default=MAILERSEND_FROM_EMAIL)
+
 
 # RAG settings
 SOURCE_DATA = config('SOURCE_DATA', default='/PDF Files')
-VECTOR_STORE = config('VECTOR_STORE', default='/vectorstore')
-TOGETHER_API_KEY = config('TOGETHER_API_KEY', default='your_together_api_key_here')
 EMBED_MODEL = config('EMBED_MODEL', default='BAAI/bge-base-en-v1.5')
-TOGETHER_MODEL_PATH = config('TOGETHER_MODEL_PATH', default= 'openai/gpt-oss-20b')
-
-
+GITHUB_TOKEN = config("GITHUB_TOKEN", default= "Github Token Here")
+VECTOR_STORE = config('VECTOR_STORE', default='/vectorstore')
 
 
 # Django Rest Framework

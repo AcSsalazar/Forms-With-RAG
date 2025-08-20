@@ -24,7 +24,7 @@ function Header() {
         {/* Marca */}
         <Link to="/" className="header__brand" onClick={closeMobileMenu}>
           <img className="header__logo" src={logoImg} alt="logo" />
-          <h3 className="header__text">Rag Forms</h3><span><p>Beta</p></span>
+          <h3 className="header__text">Rag Forms</h3><span><p style={{fontSize: "12px", color: 'white'}}>Beta</p></span>
         </Link>
 
         {/* Botón menú móvil */}

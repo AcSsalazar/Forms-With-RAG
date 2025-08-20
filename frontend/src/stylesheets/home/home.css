@@ -36,7 +36,7 @@ body{
 main, section{display:block}
 .container,
 .hero-container{
-  width: min(1120px, 100%);
+  width: min(1180px, 100%);
   margin-inline: auto;
   padding: 0 20px;
 }
@@ -47,8 +47,7 @@ main, section{display:block}
   overflow: clip;
   padding: 96px 0 40px;
   background: var(--bg-light);
-    
-  border-bottom: 1px solid var(--line);
+  border-bottom: solid rgb(95 95 95 / 12%);
 }
 .hero-noise{
   position:absolute; inset:0;
@@ -81,21 +80,25 @@ main, section{display:block}
 }
 
 .hero-badge{
-  display:inline-flex; align-items:center; gap:10px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  color: var(--text);
-  letter-spacing: .3px;
-  background: #31313659;
-  box-shadow: var(--ring);
 
-  margin-bottom: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    letter-spacing: .3px;
+    background: #345b572e;
+    margin-bottom: 10px;
 }
-.hero-badge .dot{
-  width:8px; height:8px; border-radius:999px;
-  background: radial-gradient(circle at 40% 40%, #fff, var(--brand));
-  box-shadow: 0 0 10px var(--brand);
+.hero-badge .dot
+{
+width: 9px;
+    height: 9px;
+    border-radius: 100%;
+    background: radial-gradient(circle at 40% 40%, #fff, #0c5d43);
+    box-shadow: -2px 0px 8px 0px #353573;
 }
 
 .hero-title{
@@ -192,40 +195,46 @@ main, section{display:block}
   margin: 0 0 20px 0;
   letter-spacing: -0.01em;
 }
-section .container{ padding: 64px 20px; }
+section .container{ padding: 64px 0px; }
 @media (max-width: 960px){
   section .container{ padding: 48px 20px; }
 }
 
 /* ============ Features ============ */
 .features{
-  background: radial-gradient(600px 200px at 20% 0%, rgba(139,92,246,0.08), transparent 70%),
-              linear-gradient(180deg, var(--bg-soft), var(--bg));
+  background:  var(--bg-light);
   border-bottom: 1px solid var(--line);
+  border-bottom:  solid rgb(95 95 95 / 12%);
 }
 .features-grid{
   display:grid;
-  gap: 18px;
+  gap: 25px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 @media (max-width: 960px){
   .features-grid{ grid-template-columns: 1fr; }
 }
+
+
 .feature-card{
-  position:relative;
-  padding: 22px;
-  border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
-  overflow: hidden;
-  box-shadow: var(--ring), var(--shadow-1);
-  border: 1px solid var(--line);
-  transition: transform .2s ease, border-color .2s ease, background .2s ease;
-}
-.feature-card:hover{
-  transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--brand) 35%, var(--line));
+
+position: relative;
+    padding: 20px;
+    border-radius: var(--radius);
+    background: linear-gradient(354deg, rgb(192 193 135 / 8%), rgb(255 255 255 / 66%));
+    overflow: hidden;
+     box-shadow: 2px 2px 8px 0px rgb(35 35 35 / 35%);
+    border: 1px solid rgb(55 55 55 / 22%);
+    transition: transform .2s ease, border-color .2s ease, background .2s ease;
+ 
+
 }
 
+.feature-card:hover{
+  transform: translateY(-2px);
+  border-color: var(--brand-2);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+}
 
 .hero-image-wrapper {
   position: relative;
@@ -263,39 +272,37 @@ section .container{ padding: 64px 20px; }
   50% { border-color: transparent }
 }
 
-.feature-card-bg{
-  content:"";
-  position:absolute; inset:-1px;
-  border-radius: inherit;
-  background:
-    conic-gradient(from 180deg, color-mix(in oklab, var(--brand) 30%, transparent), transparent 40% 60%, color-mix(in oklab, var(--brand-3) 30%, transparent)) border-box;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  padding: 1px;
-  opacity: .25;
-  pointer-events: none;
-}
+
 .feature-icon{
   font-size: 22px;
   width: 36px; height: 36px;
   display:grid; place-items:center;
-  border-radius: 10px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+  border-radius: 50px;
+  background-color: #d6e96cf2;
   margin-bottom: 12px;
   border: 1px solid var(--line);
 }
+.feature-icon:hover{
+  background-color: #c4d9e0;
+  color: var(--brand-2);
+  border-color: var(--brand-2);
+}
+
+
+
+
+
 .feature-title{ margin: 0 0 6px 0; font-size: 18px; }
 .feature-description{ margin: 0; color: var(--muted); }
 
 /* ============ Testimonials ============ */
 .testimonials{
-  background: linear-gradient(180deg, var(--bg), var(--bg-soft));
+  background: var(--bg-light);
   border-bottom: 1px solid var(--line);
 }
 .testimonials-grid{
   display:grid;
-  gap: 18px;
+  gap: 22px;
   grid-template-columns: repeat(2, minmax(0,1fr));
 }
 @media (max-width: 960px){
@@ -315,7 +322,7 @@ section .container{ padding: 64px 20px; }
   background: linear-gradient(180deg, var(--brand), var(--brand-2));
   opacity:.85;
 }
-.testimonial-quote{ margin:0 0 10px 0; font-size: 16px; }
+.testimonial-quote{ margin:0 0 10px 0; font-size: 16px; color: var(--bg-soft)}
 .testimonial-author{ margin:0; color: var(--muted); font-size: 14px; }
 
 /* ============ Pricing ============ */
@@ -341,9 +348,8 @@ section .container{ padding: 64px 20px; }
   overflow:hidden;
 }
 .pricing-card.popular{
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)) padding-box,
-    linear-gradient(90deg, var(--brand), var(--brand-2), var(--brand-3)) border-box;
+
+  background: linear-gradient(202deg, #eaf1ff7a, #355779ab) border-box;
   border: 1px solid transparent;
 }
 .pricing-badge{
@@ -392,9 +398,9 @@ section .container{ padding: 64px 20px; }
   transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
 }
 .pricing-button.primary{
-  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)) padding-box,
-              linear-gradient(90deg, var(--brand), var(--brand-2), var(--brand-3)) border-box;
-  border: 1px solid transparent;
+color: #5a45c5;
+    background: #daebf9;
+    border: 1px solid transparent;
 }
 .pricing-button:hover{ transform: translateY(-1px); box-shadow: var(--shadow-2); }
 

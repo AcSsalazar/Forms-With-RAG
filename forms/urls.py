@@ -16,6 +16,7 @@ urlpatterns = [
     path('completed-forms/check/<str:document_number>/', views.CheckDocumentView.as_view(), name='check-document'),
     path('completed-forms/<int:pk>/delete/', views.CompletedFormViewSet.as_view({'delete': 'delete_form'}), name='delete-form'),
     path('category-averages/<str:document_number>/', views.get_category_averages, name='category-averages'),
+    path('llmtext/<str:document_number>/', views.get_personalized_response, name="personalized-response"),
     
     # Endpoint dinámico para cualquier formulario por slug
 

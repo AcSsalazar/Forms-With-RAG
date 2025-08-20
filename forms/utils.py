@@ -26,73 +26,37 @@ info_questions = {
 
 
 # Función para enviar correos de diagnóstico con mailersend
-def send_diagnostic_email(to_email, subject, context):
-        from .models import CompletedForm
-        
-        catalog_url = "https://rcklean.wirkconsulting.com/catalogo"
-        portfolio_url = "https:/acsalazar.com"
+def send_results_email(to_email: str, subject: str, context: dict) -> bool:
+    """Send email notification for completed form"""
+    catalog_url = "https://rcklean.wirkconsulting.com/catalogo"
+    results_url = f"https://rcklean.wirkconsulting.com/results/{context['document_number']}"
 
-        
-            # === Email to client ===
-        results_url = f"https://rcklean.wirkconsulting.com/results/" # Pendiente de Heroku Student plan 
-        subject_client = "Epa! has realizado un test en nustra herramienta de autodiagnóstico"
-        text_client = f"""
-        Hello {CompletedForm.user}
+    text_client = f"""
+    ¡Hola {context['user']}!
 
+    Gracias por completar el test de autodiagnóstico.
+    Test completado: {context['form_title']}
 
-        Gracias por completar el test de autodiagnóstico. Aquí tienes un resumen de tus resultados:
-        
+    Ver resultados: {results_url}
+    """
 
-        Completaste el Test : {CompletedForm.form_title}
+    html_client = f"""
+    <html><body style="font-family: Arial, sans-serif;">
+        <h2>¡Gracias por completar tu evaluación, {context['user']}!</h2>
+        <p>Has completado exitosamente: <strong>{context['form_title']}</strong></p>
+        <div style="margin: 20px 0;">
+            <a href="{results_url}" 
+               style="background-color: #28a745; color: white; padding: 10px 20px; 
+                      text-decoration: none; border-radius: 5px; display: inline-block;">
+                Ver mis resultados
+            </a>
+        </div>
+        <p>También puedes explorar más evaluaciones en nuestro <a href="{catalog_url}">catálogo</a>.</p>
+    </body></html>
+    """
 
-
-        Puedes ver los detalles de tu diagnóstico en el siguiente enlace: {results_url}
-        """
-
-        html_client = f"""
-        <html><body style="font-family: Arial;">
-          <h2>Vuelve Pornto, {CompletedForm.user}!</h2>
-          <p>Actualziamos nuestro Catalogo de Evaluaciones Constattemente, vuelve para encotrar mas contenido:</p>
-          <p><strong>Comletaste el test:</strong> {CompletedForm.form_title}</p>
-          <p><strong>Nuestro catalogo: </strong> ${catalog_url}</p>
-          <p><strong>Eres siemrpre bienvenid@:</strong></p>
-          <a href="{results_url}" style="display:inline-block;padding:10px 20px;background-color:#28a745;color:#fff;text-decoration:none;border-radius:4px;">
-            Puedes consultar los resultados de este y otras evaluaicones de nuestra plataforma aquí:
-          </a>
-          <p style="margin-top:20px;font-size:12px;color:#888;">by acsalazar {portfolio_url} · acsalazar-19@hotmail.com · Medellín, Colombia</p>
-        </body></html>
-        """
-
-        send_mailersend_email(CompletedForm.email, subject_client, text_client, html_client)
-
-        # === Email to business ===
-        subject_admin = "🚨 Un usuario ha completado un test"
-        text_admin = f"""
-        New client request:
-
-        Name: {CompletedForm.user}
-        Email: {CompletedForm.email}
-        Form Title: {CompletedForm.form_title}
-
-
-
-        """
-
-        html_admin = f"""
-        <html><body style="font-family: Arial;">
-          <h2>🚨 New Quote Request Received</h2>
-          <p><strong>Name:</strong> {CompletedForm.user}</p>
-          <p><strong>Email:</strong> {CompletedForm.email}</p>
-          <p><strong>Form Title:</strong> {CompletedForm.form_title}</p>
-          <a href="{results_url}" style="display:inline-block;padding:10px 20px;background-color:#007bff;color:#fff;text-decoration:none;border-radius:4px;">View Estimate</a>
-        </body></html>
-        """
-
-        send_mailersend_email("acsalazar-19@hotmail.com", subject_admin, text_admin, html_admin)
-
-        return Response({ "Texto de confirmación enviado": "El correo de confirmación ha sido enviado correctamente."
-        }, status=status.HTTP_200_OK)
-
+    # Send email to client
+    return send_mailersend_email(to_email, subject, text_client, html_client)
 
 
 # Función para encontrar el plan de trabajo correspondiente a una categoría específica
@@ -131,9 +95,6 @@ def calculate_category_averages(answers):
         for answer in answers:
             category = answer['category']
             value = answer['value']
-            
-            if category['name'] == 'Complejidad':
-                continue
 
             category_name = category['name']
 
@@ -157,23 +118,6 @@ def calculate_category_averages(answers):
                 'average': average,
                 'plan': plan_to_show
             })
-
-# El prompt general usara palabras clave como bajo, medio y alto para determinar el nivel conocimuiento del usuario y segun ello
-# Recomienda documentacion y videos, o cursos gratuitos curso personalisado ( link a marketplace).
-        def prompt_context_level(prompt, level_base):
-
-            level_base = ['Bajo', 'Medio', 'Alto']
-            prompt = "Recomienda videos y articulos y brinda informacion en forma de plan de mejora basado en la documentación que tienes del tema del cuestionario ."
-            if category_averages.average < 2:
-                return f"{prompt} {level_base[0]} "
-            elif category_averages.average < 3:
-                return f"{prompt} {level_base[1]} "
-            elif category_averages.average < 4:
-                return f"{prompt} {level_base[2]} "
-            
-            return prompt_context_level(prompt, level_base)
-
-
 
         return category_averages
     except Exception as e:
@@ -294,4 +238,3 @@ def export_as_excel(queryset):
     return response
 
 
- 
