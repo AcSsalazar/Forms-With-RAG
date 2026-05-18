@@ -1,37 +1,48 @@
 # JustForms RAG 
 
-Just Forms is a web-based skills assessment tool designed to provide you with accurate, professional feedback and a clear evaluation of your knowledge on specific topics. Powered by a cutting-edge Retrieval-Augmented Generation (RAG) system, it draws from hundreds of up-to-date documents and processes your responses using an advanced AI API model.
+JustForms is a web-based skills assessment platform designed to provide accurate, professional feedback and a clear evaluation of knowledge on specific topics. Powered by a cutting-edge Retrieval-Augmented Generation (RAG) system, it draws from hundreds of up-to-date documents and processes responses using an advanced AI model.
 
-You'll receive a unique and insightful analysis, along with a downloadable visual dashboard that features clean, professional-grade charts for easy interpretation.
+Users receive a unique, insightful analysis alongside a downloadable visual dashboard featuring clean, professional-grade charts for easy interpretation.
 
-We hope you find this tool valuable. If you have any feedback or suggestions, feel free to reach out via email — your input is always welcome!
+---
 
+##  Local Installation
 
+I have decided to share the complete source code; you only need to add your own API keys. Additionally, I provide a comprehensive guide to help you set it up while leveraging optimized model costs.
 
-# I decide to share the code you only have to add yuor API keys
+To install **JustForms RAG** in your local environment, run the following commands:
 
+### 1. Backend Setup (Django)
+From the root directory, create a virtual environment, activate it, and install the dependencies:
+```bash
+python -m venv .venv
 
-To install JustForms RAG in your local evironment type the following commands:
+# On macOS/Linux:
+source .venv/bin/activate
 
-1. Create virtual environment and activate it
-   ```
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
-2. Install Django and other required packages
-   ```
-   pip install -r requirements.txt
-   ```
-3. Install React and other required packages
-   ```
-   cd frontend/
-   npm install
-   ```
-4. Run backend server (In main folder)
-   ```
-   python manage.py runserver
-   ```
-5. Run frontend server (In frontend folder)
-   ```
-   npm start
-   ```
+# On Windows (Command Prompt):
+# .venv\Scripts\activate
+
+pip install -r requirements.txt
+
+```
+### 2. Frontend Setup (React)
+```bash
+cd frontend
+pnpm install
+```
+
+### 3. Iniciar Backend
+
+From the main root folder (with the virtual environment activated):
+
+```bash
+python manage.py run server
+```
+
+### 4. Iniciar Frontend
+From the frontend/ folder
+
+```bash
+pnpm run dev
+```
