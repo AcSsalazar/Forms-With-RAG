@@ -7,9 +7,9 @@ const getCsrfToken = () => {
   return cookieValue;
 };
 
-const CLIENT_TOKEN = process.env.REACT_APP_CLIENT_TOKEN; // Token sincronizado con el backend
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL; // Base URL para las APIs
-
+// CORRECCIÓN: Sintaxis correcta de Vite para variables de entorno
+const CLIENT_TOKEN = import.meta.env.VITE_CLIENT_TOKEN; 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
 // Funciones para los formularios
 
 export const fetchForms = async () => {

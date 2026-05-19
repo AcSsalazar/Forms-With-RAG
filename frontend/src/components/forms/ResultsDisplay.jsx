@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { sliderSettings } from '../../utils/chartConfigs';
+import { sliderSettings } from '../../utils/chartConfigs.jsx';
 import BarChart from '../../charts/BarChart';
 import RadarChart from '../../charts/RadarChart';
 import PercentageChart from '../../charts/PercentageChart';

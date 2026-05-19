@@ -30,8 +30,9 @@ class LLM:
         )
         return response.choices[0].message.content
 
-# Example usage:
-llm = LLM()
-result = llm.complete("You are a helpful assistant.", "What is the capital of France?")
-print(result)
+if __name__ == "__main__":
+    # Example usage when run as a script, not on import by Django
+    llm = LLM()
+    result = llm.complete("You are a helpful assistant.", "What is the capital of France?")
+    print(result)
 
