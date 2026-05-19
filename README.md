@@ -44,5 +44,5 @@ python manage.py run server
 From the frontend/ folder
 
 ```bash
-pnpm start
+pnpm run dev
 ```
