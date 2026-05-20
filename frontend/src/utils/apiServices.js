@@ -1,24 +1,42 @@
 
 
 
+// CORRECCIÓN: Sintaxis correcta de Vite para variables de entorno
+const CLIENT_TOKEN = import.meta.env.VITE_CLIENT_TOKEN;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const getCsrfToken = () => {
   const name = 'csrftoken';
   const cookieValue = document.cookie.split('; ').find(row => row.startsWith(name))?.split('=')[1];
   return cookieValue;
 };
 
-// CORRECCIÓN: Sintaxis correcta de Vite para variables de entorno
-const CLIENT_TOKEN = import.meta.env.VITE_CLIENT_TOKEN; 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+const getClerkToken = async () => {
+  const clerk = window?.Clerk;
+  if (!clerk?.session) return null;
+  return clerk.session.getToken();
+};
+
+const buildHeaders = async (extra = {}) => {
+  const headers = {
+    ...extra,
+  };
+  if (CLIENT_TOKEN) {
+    headers['X-Client-Token'] = CLIENT_TOKEN;
+  }
+  const token = await getClerkToken();
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
+};
 // Funciones para los formularios
 
 export const fetchForms = async () => {
   const response = await fetch(`${API_BASE_URL}/forms/forms/`, {
     method: 'GET',
     credentials: 'include',
-    headers: {
-      'X-Client-Token': CLIENT_TOKEN,
-    },
+    headers: await buildHeaders(),
   });
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -31,9 +49,7 @@ export const fetchFormBySlug = async (formSlug) => {
   const response = await fetch(`${API_BASE_URL}/forms/form/${formSlug}/`, {
     method: 'GET',
     credentials: 'include',
-    headers: {
-      'X-Client-Token': CLIENT_TOKEN,
-    },
+    headers: await buildHeaders(),
   });
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -45,9 +61,7 @@ export const checkDocument = async (documentNumber) => {
   const response = await fetch(`${API_BASE_URL}/forms/completed-forms/check/${documentNumber}/`, {
     method: 'GET',
     credentials: 'include',
-    headers: {
-      'X-Client-Token': CLIENT_TOKEN,
-    },
+    headers: await buildHeaders(),
   });
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -63,9 +77,7 @@ export const formsByDocument = async (documentNumber) => {
   const response = await fetch(`${API_BASE_URL}/forms/completed-forms/by-document/${documentNumber}/`, { 
     method: 'GET',
     credentials: 'include',
-    headers: {
-      'X-Client-Token': CLIENT_TOKEN,
-    },
+    headers: await buildHeaders(),
   });
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -85,11 +97,10 @@ export const submitForm = async (formTitle, userName, email, dataToSubmit) => {
 
   const response = await fetch(`${API_BASE_URL}/forms/completed-forms/`, {
     method: 'POST',
-    headers: {
+    headers: await buildHeaders({
       'Content-Type': 'application/json',
       'X-CSRFToken': getCsrfToken(),
-      'X-Client-Token': CLIENT_TOKEN,
-    },
+    }),
     credentials: 'include',
     body: JSON.stringify(completedFormData),
   });
@@ -106,9 +117,7 @@ export const fetchPersonalizedResults = async (documentNumber) => {
     {
     method: 'GET',
     credentials: 'include',
-    headers: {
-      'X-Client-Token': CLIENT_TOKEN,
-    },
+    headers: await buildHeaders(),
     });
   if (!response.ok)
 
@@ -124,9 +133,7 @@ export const fetchCategoryAverages = async (documentNumber) => {
   const response = await fetch(`${API_BASE_URL}/forms/category-averages/${documentNumber}/`, {
     method: 'GET',
     credentials: 'include',
-    headers: {
-      'X-Client-Token': CLIENT_TOKEN,
-    },
+    headers: await buildHeaders(),
   });
   if (!response.ok) {
     throw new Error('Network response was not ok');

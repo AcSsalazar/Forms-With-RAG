@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import {Home} from "./pages/AllPages";
+import { Home } from "./pages/AllPages";
 // import { AuthProvider } from './contexts/AuthContext';
 import Header from "./components/Header";
 import NotFound from './components/NotFound';
@@ -10,6 +10,7 @@ import StartForm from './components/forms/StartForm';
 import Diagnosis from './components/forms/Diagnosis';
 import FormCatalog from './components/forms/FormCatalog';
 import FormSearcher from './components/forms/FormSearcher';
+import AuthForm from './components/Login';
 
 function App() {
   return (
@@ -20,6 +21,8 @@ function App() {
         <Routes>
 
           <Route path='/' element={<Home />} />
+          <Route path='/login/' element={<AuthForm />} />
+          <Route path='/register/' element={<AuthForm />} />
           <Route path='/testsearcher/' element={<FormSearcher/>} />
           <Route path='/start-form/' element={<StartForm />} />
           <Route path='/diagnostico/' element={<Diagnosis/>} />

@@ -26,7 +26,23 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 ```
-### 2. Frontend Setup (React)
+Create a root `.env` with at least:
+
+```
+SECRET_KEY=change-me
+DEBUG=True
+DATABASE_NAME=db.sqlite3
+FRONTEND_URL=http://localhost:5173
+CLERK_JWKS_URL=https://<your-clerk-domain>/.well-known/jwks.json
+CLERK_ISSUER=https://<your-clerk-domain>
+CLERK_AUDIENCE=
+MAILERSEND_API_TOKEN=
+MAILERSEND_FROM_EMAIL=
+MAILERSEND_FROM_NAME=
+MAILERSEND_REPLY_TO_EMAIL=
+GITHUB_TOKEN=
+```
+### 2. Frontend Setup (React + Vite)
 ```bash
 cd frontend
 pnpm install
@@ -37,12 +53,13 @@ pnpm install
 From the main root folder (with the virtual environment activated):
 
 ```bash
-python manage.py run server
+python manage.py migrate --noinput
+python manage.py runserver 0.0.0.0:8000
 ```
 
 ### 4. Iniciar Frontend
-From the frontend/ folder
+From the `frontend/` folder
 
 ```bash
-pnpm start
+pnpm run dev
 ```

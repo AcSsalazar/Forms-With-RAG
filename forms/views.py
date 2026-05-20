@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, action
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .permissions import IsAuthenticatedOrReadOnly
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class FormViewSet(viewsets.ModelViewSet):
     queryset = Form.objects.all()
     serializer_class = FormSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     @action(detail=True, methods=['post'])
     def submit_response(self, request, pk=None):
@@ -32,7 +32,20 @@ class FormViewSet(viewsets.ModelViewSet):
 class CompletedFormViewSet(viewsets.ModelViewSet):
     queryset = CompletedForm.objects.all().order_by('-created_at')
     serializer_class = CompletedFormSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        # Allow anonymous users to submit, but protect list/retrieve/delete
+        if self.request.method in ['POST']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        # Restrict list/retrieve to the authenticated Clerk user
+        user_id = getattr(request_user := self.request.user, 'id', None)
+        if user_id:
+            return self.queryset.filter(user=user_id)
+        return self.queryset.none()
 
     def create(self, request, *args, **kwargs):
         try:
@@ -41,6 +54,10 @@ class CompletedFormViewSet(viewsets.ModelViewSet):
             form_title = request.data.get('form_title', None)
             user_email = request.data.get('content', {}).get('info', {}).get('email', None)
             user_name = request.data.get('content', {}).get('info', {}).get('userName', None)
+
+            # Attach Clerk identity when available
+            clerk_user_id = getattr(request.user, 'id', None)
+            clerk_email = getattr(request.user, 'email', None)
 
             # Handle existing form deletion
             if identification_number and form_title:
@@ -52,6 +69,11 @@ class CompletedFormViewSet(viewsets.ModelViewSet):
                     existing_form.delete()
 
             # Create new form
+            if clerk_user_id:
+                request.data['user'] = clerk_user_id
+            if clerk_email and not user_email:
+                request.data['email'] = clerk_email
+
             response = super().create(request, *args, **kwargs)
 
             # Send email if we have user's email
@@ -76,13 +98,15 @@ class CompletedFormViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 class CheckDocumentView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, document_number):
         try:
-            completed_form = CompletedForm.objects.filter(
-                content__info__identificationNumber=document_number
-            ).order_by('-created_at').first()
+            user_id = getattr(request.user, 'id', None)
+            qs = CompletedForm.objects.filter(content__info__identificationNumber=document_number)
+            if user_id:
+                qs = qs.filter(user=user_id)
+            completed_form = qs.order_by('-created_at').first()
 
             if completed_form:
                 return Response({'exists': True, 'data': completed_form.content, 'id': completed_form.id}, status=status.HTTP_200_OK)
@@ -98,15 +122,17 @@ class CheckDocumentView(APIView):
 
 class CompletedFormsByDocumentView(APIView):
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, document_number):
 
 
         try: 
-            forms = CompletedForm.objects.filter(
-                content__info__identificationNumber=document_number
-            ).order_by('-created_at')
+            user_id = getattr(request.user, 'id', None)
+            qs = CompletedForm.objects.filter(content__info__identificationNumber=document_number)
+            if user_id:
+                qs = qs.filter(user=user_id)
+            forms = qs.order_by('-created_at')
 
             if not forms.exists():
                 return Response(
@@ -131,9 +157,11 @@ class CompletedFormsByDocumentView(APIView):
 
 @api_view(['GET'])
 def get_category_averages(request, document_number):
-    completed_form = CompletedForm.objects.filter(
-        content__info__identificationNumber=document_number
-    ).order_by('-created_at').first()
+    user_id = getattr(request.user, 'id', None)
+    qs = CompletedForm.objects.filter(content__info__identificationNumber=document_number)
+    if user_id:
+        qs = qs.filter(user=user_id)
+    completed_form = qs.order_by('-created_at').first()
 
     if not completed_form:
         return Response({'exists': False}, status=404)
@@ -144,7 +172,7 @@ def get_category_averages(request, document_number):
 class FormResponseViewSet(viewsets.ModelViewSet):
     queryset = FormResponse.objects.all()
     serializer_class = FormResponseSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return FormResponse.objects.filter(user=self.request.user)
@@ -153,7 +181,7 @@ class FormBySlug(APIView):
     """
     API endpoint to get a form by its slug
     """
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, form_slug):
         """
@@ -236,15 +264,16 @@ def generate_personalized_response(context, category_averages):
 
 
 @api_view(['GET'])
-
 def get_personalized_response(request, document_number):
     """
     Endpoint to get a personalized response based on the user's test results.
     
     """
-    completed_form = CompletedForm.objects.filter(
-        content__info__identificationNumber=document_number
-    ).order_by('-created_at').first()
+    user_id = getattr(request.user, 'id', None)
+    qs = CompletedForm.objects.filter(content__info__identificationNumber=document_number)
+    if user_id:
+        qs = qs.filter(user=user_id)
+    completed_form = qs.order_by('-created_at').first()
 
     if not completed_form:
         return Response({'exists': False}, status=404)

@@ -30,14 +30,14 @@ if DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
     CORS_ALLOW_ALL_ORIGINS = True
     CSRF_TRUSTED_ORIGINS = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
     ]
 else:
     ALLOWED_HOSTS = config('PROD_ALLOWED_HOSTS', cast=Csv())
     CORS_ALLOW_ORIGINS = config('PROD_CORS_ALLOW_ORIGINS', cast=Csv())
     CSRF_TRUSTED_ORIGINS = config('PROD_CSRF_TRUSTED_ORIGINS', cast=Csv())
-    CORS_ALLOW_ALL_ORIGINS = True  # Desactivar en producción
+    CORS_ALLOW_ALL_ORIGINS = False
 
 # Application definition
 DJANGO_APPS = [
@@ -91,7 +91,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, "frontend/build")],
+        'DIRS': [os.path.join(BASE_DIR, "frontend/dist")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -139,7 +139,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "frontend/build/static"),
+    os.path.join(BASE_DIR, "frontend/dist/assets"),
 ]
 
 # Media files
@@ -147,13 +147,13 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # --------------------------------------------------------------------------------------
-# MAILERSEND SETTINGS
+# RESEND SETTINGS
 # --------------------------------------------------------------------------------------
 
-MAILERSEND_API_TOKEN = config("MAILERSEND_API_TOKEN")
-MAILERSEND_FROM_EMAIL = config("MAILERSEND_FROM_EMAIL", default="gerencia@wirkconsulting.com")
-MAILERSEND_FROM_NAME = config("MAILERSEND_FROM_NAME", default="WirkConsulting")
-MAILERSEND_REPLY_TO_EMAIL = config("MAILERSEND_REPLY_TO_EMAIL", default=MAILERSEND_FROM_EMAIL)
+RESEND_API_TOKEN = config("RESEND_API_TOKEN")
+RESEND_FROM_EMAIL = config("RESEND_FROM_EMAIL", default="gerencia@wirkconsulting.com")
+RESEND_FROM_NAME = config("RESEND_FROM_NAME", default="WirkConsulting")
+RESEND_REPLY_TO_EMAIL = config("RESEND_REPLY_TO_EMAIL", default=RESEND_FROM_EMAIL)
 
 
 # RAG settings
@@ -171,7 +171,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'backend.clerk_auth.ClerkJWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     )
 }
@@ -200,6 +200,11 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(hours=1),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+# Clerk JWT settings
+CLERK_JWKS_URL = config('CLERK_JWKS_URL', default='')
+CLERK_ISSUER = config('CLERK_ISSUER', default='')
+CLERK_AUDIENCE = config('CLERK_AUDIENCE', default='')
 
 # CORS and CSRF settings
 CORS_ALLOW_METHODS = [
