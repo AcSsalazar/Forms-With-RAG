@@ -280,3 +280,6 @@ thumb
 sketch
 frontend/.env.development
 frontend/.env.production
+RAG_LOGIC_MANUAL.md
+.gitignore
+RAG_LOGIC_MANUAL.html
