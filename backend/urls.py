@@ -7,6 +7,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/forms/', include('forms.urls')),
+    path('api/rag/', include('apps.rag.api.urls')),
 
     # ... cualquier otra ruta específica que necesites ...
 ]

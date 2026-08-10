@@ -11,6 +11,7 @@ import Diagnosis from './components/forms/Diagnosis';
 import FormCatalog from './components/forms/FormCatalog';
 import FormSearcher from './components/forms/FormSearcher';
 import AuthForm from './components/Login';
+import RagBuilder from './pages/RagBuilder';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path='/start-form/' element={<StartForm />} />
           <Route path='/diagnostico/' element={<Diagnosis/>} />
           <Route path='/catalog/' element={<FormCatalog />} />
+          <Route path='/rag-builder/' element={<RagBuilder />} />
           <Route path='*' element={<NotFound />} />
         </Routes>
         <Footer />

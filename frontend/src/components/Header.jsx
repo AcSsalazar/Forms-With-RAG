@@ -69,6 +69,7 @@ function Header() {
             <li><Link to="/" className="navbar__link" onClick={closeMobileMenu}>Home</Link></li>
             <li><Link to="/start-form/" className="navbar__link" onClick={closeMobileMenu}>Test Online</Link></li>
             <li><Link to="/catalog/" className="navbar__link" onClick={closeMobileMenu}>Catálogo</Link></li>
+            <li><Link to="/rag-builder/" className="navbar__link" onClick={closeMobileMenu}>RAG Studio</Link></li>
 
 
 

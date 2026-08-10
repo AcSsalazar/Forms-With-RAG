@@ -30,6 +30,19 @@ const buildHeaders = async (extra = {}) => {
   }
   return headers;
 };
+
+const getJson = async (url, options = {}) => {
+  const response = await fetch(url, {
+    credentials: 'include',
+    ...options,
+    headers: await buildHeaders(options.headers || {}),
+  });
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Request failed');
+    throw new Error(errorText || 'Request failed');
+  }
+  return response.json();
+};
 // Funciones para los formularios
 
 export const fetchForms = async () => {
@@ -139,5 +152,49 @@ export const fetchCategoryAverages = async (documentNumber) => {
     throw new Error('Network response was not ok');
   }
   return response.json();
+};
+
+// RAG builder helpers
+export const createRagFormRequest = async ({ difficulty, evaluation_type }) => {
+  return getJson(`${API_BASE_URL}/rag/form-requests/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCsrfToken(),
+    },
+    body: JSON.stringify({ difficulty, evaluation_type }),
+  });
+};
+
+export const uploadRagDocuments = async (formRequestId, files) => {
+  const formData = new FormData();
+  Array.from(files || []).forEach((file) => formData.append('documents', file));
+  return getJson(`${API_BASE_URL}/rag/form-requests/${formRequestId}/upload_documents/`, {
+    method: 'POST',
+    body: formData,
+  });
+};
+
+export const generateRagForm = async (formRequestId, config = {}) => {
+  return getJson(`${API_BASE_URL}/rag/form-requests/${formRequestId}/generate_form/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCsrfToken(),
+    },
+    body: JSON.stringify(config),
+  });
+};
+
+export const fetchRagFormRequestStatus = async (formRequestId) => {
+  return getJson(`${API_BASE_URL}/rag/form-requests/${formRequestId}/status/`, {
+    method: 'GET',
+  });
+};
+
+export const fetchRagGeneratedForms = async () => {
+  return getJson(`${API_BASE_URL}/rag/forms/`, {
+    method: 'GET',
+  });
 };
 

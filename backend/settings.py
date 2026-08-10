@@ -51,6 +51,7 @@ DJANGO_APPS = [
 
 PROJECT_APPS = [
     'forms',
+    'apps.rag',
 
 ]
 
@@ -64,6 +65,8 @@ THIRD_PARTY_APPS = [
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CKEditor
 CKEDITOR_CONFIGS = {
@@ -138,9 +141,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+_frontend_assets_dir = os.path.join(BASE_DIR, "frontend/dist/assets")
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "frontend/dist/assets"),
-]
+    _frontend_assets_dir,
+] if os.path.isdir(_frontend_assets_dir) else []
 
 # Media files
 MEDIA_URL = '/media/'
@@ -161,6 +165,10 @@ SOURCE_DATA = config('SOURCE_DATA', default='/PDF Files')
 EMBED_MODEL = config('EMBED_MODEL', default='BAAI/bge-base-en-v1.5')
 GITHUB_TOKEN = config("GITHUB_TOKEN", default= "Github Token Here")
 VECTOR_STORE = config('VECTOR_STORE', default='/vectorstore')
+
+# Celery configuration
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default=CELERY_BROKER_URL)
 
 
 # Django Rest Framework

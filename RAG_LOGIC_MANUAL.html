@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>RAG Logic Manual &lpar;Backend &plus; API&rpar;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;dark&quot;,&quot;lightModeTheme&quot;:&quot;default&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<h1 id="rag-logic-manual-backend--api">RAG Logic Manual (Backend + API)</h1>
+<p>This document explains the new RAG logic end-to-end so you can quickly understand what happens, where it happens, and why.</p>
+<hr>
+<h2 id="1-goal-of-the-module">1) Goal of the module</h2>
+<p>The RAG module builds dynamic assessment forms from user-uploaded documents.</p>
+<p>Pipeline:</p>
+<ol>
+<li>User creates a <code>FormRequest</code> (difficulty + evaluation type).</li>
+<li>User uploads 3–4 source documents.</li>
+<li>Backend extracts text, chunks it, and embeds chunks into Chroma.</li>
+<li>Retrieval pulls the most relevant chunks for the request.</li>
+<li>Generation asks the LLM to return <strong>exactly 20 questions</strong> in strict JSON.</li>
+<li>Backend validates and persists the generated form/questions.</li>
+</ol>
+<hr>
+<h2 id="2-main-domain-objects">2) Main domain objects</h2>
+<p>Defined in <code>apps/rag/models.py</code>:</p>
+<ul>
+<li><code>FormRequest</code>
+<ul>
+<li>Owner (<code>user</code>), <code>difficulty</code>, <code>evaluation_type</code>, <code>status</code> (<code>queued</code>, <code>processing</code>, <code>completed</code>, <code>failed</code>), <code>created_at</code>.</li>
+</ul>
+</li>
+<li><code>Document</code>
+<ul>
+<li>Uploaded file metadata tied to a <code>FormRequest</code>.</li>
+</ul>
+</li>
+<li><code>DocumentChunk</code>
+<ul>
+<li>Text chunks per document with <code>chunk_index</code>, <code>metadata</code>, optional <code>embedding_id</code>.</li>
+</ul>
+</li>
+<li><code>GeneratedForm</code>
+<ul>
+<li>Final generated questionnaire container.</li>
+</ul>
+</li>
+<li><code>Question</code>
+<ul>
+<li>Each generated question, choices, answer, explanation, source references.</li>
+</ul>
+</li>
+<li><code>Submission</code>
+<ul>
+<li>User answers + score for a generated form.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-api-surface-and-routing">3) API surface and routing</h2>
+<p>Root wiring:</p>
+<ul>
+<li><code>backend/urls.py</code> mounts RAG API at <code>api/rag/</code>.</li>
+</ul>
+<p>Router wiring:</p>
+<ul>
+<li><code>apps/rag/api/urls.py</code>
+<ul>
+<li><code>form-requests</code></li>
+<li><code>forms</code></li>
+<li><code>submissions</code></li>
+</ul>
+</li>
+</ul>
+<p>Primary <code>FormRequest</code> actions (<code>apps/rag/api/views.py</code>):</p>
+<ul>
+<li><code>POST /api/rag/form-requests/</code>
+<ul>
+<li>Create request. <code>user</code> is assigned server-side in <code>perform_create</code>.</li>
+</ul>
+</li>
+<li><code>POST /api/rag/form-requests/{id}/upload_documents/</code>
+<ul>
+<li>Upload files under <code>documents</code> multipart field.</li>
+</ul>
+</li>
+<li><code>POST /api/rag/form-requests/{id}/generate_form/</code>
+<ul>
+<li>Retrieve context + generate/persist form/questions.</li>
+</ul>
+</li>
+<li><code>GET /api/rag/form-requests/{id}/status/</code>
+<ul>
+<li>Poll request status.</li>
+</ul>
+</li>
+</ul>
+<p>Read-only retrieval:</p>
+<ul>
+<li><code>GET /api/rag/forms/</code>
+<ul>
+<li>Returns generated forms for the authenticated user.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="4-request-lifecycle--status-transitions">4) Request lifecycle + status transitions</h2>
+<p><code>FormRequest.status</code> state changes:</p>
+<ul>
+<li>On create: <code>queued</code> (default).</li>
+<li>During generation: set to <code>processing</code>.</li>
+<li>On successful generation: set to <code>completed</code>.</li>
+<li>On retrieval failure / validation failure / generation error: set to <code>failed</code>.</li>
+</ul>
+<pre class="mermaid" style="all: unset;">flowchart TD
+    A[Create FormRequest] --&gt; B[queued]
+    B --&gt; C[Upload Documents]
+    C --&gt; D[Ingest + Chunk]
+    D --&gt; E[Embed chunks to Chroma]
+    E --&gt; F[Generate Form]
+    F --&gt; G[Retrieve context]
+    G --&gt;|No context| H[failed]
+    G --&gt;|Context ok| I[processing]
+    I --&gt; J[LLM JSON output]
+    J --&gt;|Invalid schema / !=20 questions| H
+    J --&gt;|Valid| K[Persist GeneratedForm + Questions]
+    K --&gt; L[completed]</pre>
+<hr>
+<h2 id="5-ingestion-internals">5) Ingestion internals</h2>
+<p>Implementation: <code>apps/rag/services/ingestion_service.py</code></p>
+<p><code>IngestionService.validate_and_store(files, form_request)</code> does:</p>
+<ol>
+<li>Saves uploaded files to:
+<ul>
+<li><code>MEDIA_ROOT/rag_sources/{form_request.id}/</code></li>
+</ul>
+</li>
+<li>Computes:
+<ul>
+<li>size, SHA-256 checksum.</li>
+</ul>
+</li>
+<li>Tries PDF page count using <code>PyPDF2</code>.</li>
+<li>Creates <code>Document</code> DB row.</li>
+<li>Extracts text (<code>.txt</code>, <code>.md</code>, <code>.pdf</code>; unsupported types -&gt; empty text).</li>
+<li>Chunks extracted text using <code>ChunkingService</code>.</li>
+<li>Creates <code>DocumentChunk</code> rows with metadata:
+<ul>
+<li><code>source</code>, <code>chunk_index</code>, <code>document_id</code>.</li>
+</ul>
+</li>
+<li>Triggers embedding task (<code>embed_form_chunks</code>) asynchronously if Celery is available; otherwise sync fallback.</li>
+</ol>
+<p>Important behavior:</p>
+<ul>
+<li>Embedding failures do <strong>not</strong> block ingestion.</li>
+</ul>
+<hr>
+<h2 id="6-chunking-strategy">6) Chunking strategy</h2>
+<p>Implementation: <code>apps/rag/services/chunking_service.py</code></p>
+<ul>
+<li>Character-based chunking.</li>
+<li>Defaults:
+<ul>
+<li>chunk size = <code>2000</code> chars</li>
+<li>overlap = <code>200</code> chars</li>
+</ul>
+</li>
+<li>Returns ordered list of <code>(index, chunk_text)</code>.</li>
+</ul>
+<p>This is a simple and deterministic baseline chunker.</p>
+<hr>
+<h2 id="7-embedding--vector-storage">7) Embedding + vector storage</h2>
+<p>Implementation: <code>apps/rag/services/embedding_service.py</code></p>
+<ul>
+<li>Embedding model:
+<ul>
+<li><code>HuggingFaceBgeEmbeddings</code> using <code>EMBED_MODEL</code> setting (default <code>BAAI/bge-base-en-v1.5</code>).</li>
+</ul>
+</li>
+<li>Vector DB:
+<ul>
+<li><code>Chroma</code> persisted in <code>VECTOR_STORE</code>.</li>
+</ul>
+</li>
+<li>Collection model:
+<ul>
+<li>per-form-request collection (<code>form_{id}</code>) to isolate user/form data.</li>
+</ul>
+</li>
+<li>Metadata enrichment per chunk includes:
+<ul>
+<li><code>document_chunk_id</code>, <code>document_id</code>, <code>chunk_index</code>, plus source metadata.</li>
+</ul>
+</li>
+</ul>
+<p>If embedder initialization fails, generation path will fail later because embeddings cannot be queried.</p>
+<hr>
+<h2 id="8-background-embedding-celery">8) Background embedding (Celery)</h2>
+<p>Implementation: <code>apps/rag/tasks/ingest_tasks.py</code></p>
+<p>Task: <code>rag.embed_form_chunks</code></p>
+<ul>
+<li>Loads all chunks for the target form request.</li>
+<li>Calls <code>EmbeddingService.embed_chunks(...)</code>.</li>
+<li>Returns status payload (<code>ok</code>, <code>no_chunks</code>, or <code>error</code>).</li>
+</ul>
+<p>If Celery app is unavailable, the same function name exists as a sync fallback.</p>
+<hr>
+<h2 id="9-retrieval-logic">9) Retrieval logic</h2>
+<p>Implementation: <code>apps/rag/services/retrieval_service.py</code></p>
+<p><code>retrieve(form_request, top_k=10, use_mmr=True)</code>:</p>
+<ol>
+<li>Builds query from request profile:
+<ul>
+<li><code>&quot;{evaluation_type} {difficulty} questions from the uploaded documents&quot;</code></li>
+</ul>
+</li>
+<li>Loads Chroma collection <code>form_{form_request.id}</code>.</li>
+<li>Retrieval order:
+<ul>
+<li>Try MMR first (<code>max_marginal_relevance_search</code>).</li>
+<li>If that fails/empty, fallback to similarity search with scores.</li>
+</ul>
+</li>
+<li>Returns normalized chunk payload list:
+<ul>
+<li><code>text</code>, <code>source</code>, <code>chunk_index</code>, <code>document_id</code>, <code>document_chunk_id</code>, <code>source_ref</code>, optional <code>score</code>.</li>
+</ul>
+</li>
+</ol>
+<p>If retrieval returns empty list, API responds with insufficient context and marks request failed.</p>
+<hr>
+<h2 id="10-generation-logic--strict-schema">10) Generation logic + strict schema</h2>
+<p>Implementation: <code>apps/rag/services/generation_service.py</code>
+Prompt: <code>apps/rag/prompts/form_generation_prompt.py</code></p>
+<p>Flow:</p>
+<ol>
+<li>Build <code>system_prompt</code> from template with difficulty/evaluation_type.</li>
+<li>Build user context prompt from retrieved chunks:
+<ul>
+<li>format <code>[source_ref] chunk_text</code> per chunk.</li>
+</ul>
+</li>
+<li>Call LLM (<code>forms.llm_config.LLM.complete(...)</code>).</li>
+<li>Parse JSON output (supports optional ```json fences).</li>
+<li>Validate payload:
+<ul>
+<li>Must be JSON object.</li>
+<li>If <code>{&quot;error&quot;: ...}</code> exists, fail.</li>
+<li>Must contain <code>questions</code> list of <strong>exactly 20</strong> items.</li>
+</ul>
+</li>
+<li>Persist:
+<ul>
+<li><code>GeneratedForm</code> + each <code>Question</code> via <code>FormRepository</code>.</li>
+</ul>
+</li>
+</ol>
+<p>Validation failures raise <code>ValueError</code> and become HTTP 400 in the API.</p>
+<hr>
+<h2 id="11-persistence-layer-helpers">11) Persistence layer helpers</h2>
+<p><code>apps/rag/repositories/form_repo.py</code></p>
+<ul>
+<li><code>save_generated_form(...)</code></li>
+<li><code>save_question(...)</code></li>
+</ul>
+<p><code>apps/rag/repositories/document_repo.py</code></p>
+<ul>
+<li>helper methods for document/chunk persistence (currently not the primary path for ingestion, but available for cleaner abstractions).</li>
+</ul>
+<hr>
+<h2 id="12-auth-and-permissions-behavior">12) Auth and permissions behavior</h2>
+<p>Settings: <code>backend/settings.py</code></p>
+<ul>
+<li>DRF auth classes:
+<ul>
+<li><code>backend.clerk_auth.ClerkJWTAuthentication</code></li>
+<li>session auth fallback.</li>
+</ul>
+</li>
+<li>Default permissions:
+<ul>
+<li><code>IsAuthenticatedOrReadOnly</code>.</li>
+</ul>
+</li>
+<li>Viewset querysets are user-scoped in code (<code>get_queryset</code>).</li>
+<li><code>FormRequestSerializer</code> marks <code>user</code>, <code>status</code>, <code>created_at</code> as read-only so the backend controls those fields.</li>
+</ul>
+<hr>
+<h2 id="13-error-handling-behavior-important">13) Error handling behavior (important)</h2>
+<p><code>upload_documents</code>:</p>
+<ul>
+<li>Missing files -&gt; HTTP 400.</li>
+<li>Save/ingestion exception -&gt; HTTP 500.</li>
+</ul>
+<p><code>generate_form</code>:</p>
+<ul>
+<li>No uploaded docs -&gt; HTTP 400.</li>
+<li>No retrieval context -&gt; set <code>failed</code>, HTTP 400.</li>
+<li>Generation schema/value errors -&gt; set <code>failed</code>, HTTP 400.</li>
+<li>Unexpected runtime errors -&gt; set <code>failed</code>, HTTP 500.</li>
+<li>Success -&gt; set <code>completed</code>, HTTP 201 with generated form/questions.</li>
+</ul>
+<hr>
+<h2 id="14-configuration-keys-you-should-know">14) Configuration keys you should know</h2>
+<p>From <code>backend/settings.py</code>:</p>
+<ul>
+<li><code>SOURCE_DATA</code> (default <code>/PDF Files</code>)</li>
+<li><code>EMBED_MODEL</code> (default <code>BAAI/bge-base-en-v1.5</code>)</li>
+<li><code>VECTOR_STORE</code> (default <code>/vectorstore</code>)</li>
+<li><code>GITHUB_TOKEN</code> (used by LLM client)</li>
+<li><code>CELERY_BROKER_URL</code> / <code>CELERY_RESULT_BACKEND</code></li>
+<li>Clerk settings:
+<ul>
+<li><code>CLERK_JWKS_URL</code>, <code>CLERK_ISSUER</code>, <code>CLERK_AUDIENCE</code></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="15-what-is-synchronous-vs-asynchronous-today">15) What is synchronous vs asynchronous today</h2>
+<p>Synchronous now:</p>
+<ul>
+<li>file save</li>
+<li>text extraction</li>
+<li>chunk creation</li>
+</ul>
+<p>Async (when Celery available):</p>
+<ul>
+<li>embedding persistence to Chroma</li>
+</ul>
+<p>Sync fallback exists for embedding task to keep local dev functional when Celery is not running.</p>
+<hr>
+<h2 id="16-quick-mental-model-one-liner">16) Quick mental model (one-liner)</h2>
+<p><strong>Upload docs -&gt; extract/chunk -&gt; embed into per-form vector collection -&gt; retrieve relevant chunks -&gt; force LLM to output strict 20-question JSON -&gt; validate -&gt; persist -&gt; expose via API.</strong></p>
+<hr>
+<h2 id="17-current-known-constraints">17) Current known constraints</h2>
+<ul>
+<li>Chunking is character-based, not semantic/sentence-aware.</li>
+<li>No endpoint-specific throttling/rate limiting yet on generation.</li>
+<li>If embeddings are not ready/populated, retrieval may return insufficient context.</li>
+<li>CKEditor warning in system checks is unrelated to RAG but present globally.</li>
+</ul>
+<hr>
+<h2 id="18-suggested-next-hardening-steps-optional">18) Suggested next hardening steps (optional)</h2>
+<ol>
+<li>Add DRF throttles for <code>generate_form</code>.</li>
+<li>Add retries + dead-letter/monitoring for Celery embedding failures.</li>
+<li>Add readiness checks before generation (ensure chunk/embedding availability).</li>
+<li>Move extraction/chunking to async workers for large files.</li>
+<li>Add schema contract tests that assert exact 20-question persistence in integration scenarios.</li>
+</ol>
+
+            
+            
+        </body>
+        </html>
